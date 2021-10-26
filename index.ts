@@ -2,7 +2,7 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
 
-const vpc = new awsx.ec2.Vpc("pk-neptune-vpc", {
+const vpc = new awsx.ec2.Vpc("neptune-vpc", {
     subnets: [{
         type: "public",
         name: "publicneptune"
