@@ -2,7 +2,9 @@ import * as pulumi from "@pulumi/pulumi";
 import * as aws from "@pulumi/aws";
 import * as awsx from "@pulumi/awsx";
 
-const vpc = new awsx.ec2.Vpc("neptune-vpc", {
+const dbInstanceClass = "db.t3.medium";
+
+const vpc = new awsx.ec2.Vpc("pk-neptune-vpc", {
     subnets: [{
         type: "public",
         name: "publicneptune"
@@ -21,7 +23,7 @@ const parameterGroup = new aws.neptune.ClusterParameterGroup("parametergroup", {
     parameters: [{
         name: "neptune_autoscaling_config",
         value: JSON.stringify({
-            "dbInstanceClass": "db.r5.large"
+            "dbInstanceClass": dbInstanceClass
         })
     }],
     description: "auto-scaling"
@@ -51,7 +53,7 @@ for (let i = 0; i < 2; i++) {
     new aws.neptune.ClusterInstance(`neptuneinstance-${i}`, {
         clusterIdentifier: db.clusterIdentifier,
         promotionTier: 0,
-        instanceClass: "db.r5.large",
+        instanceClass: dbInstanceClass,
         neptuneSubnetGroupName: neptuneSubnetGroup.name,
         publiclyAccessible: false,
         identifier: `neptuneinstance-${i}`,
@@ -77,7 +79,7 @@ const autoScalingPolicy = new aws.appautoscaling.Policy("policy", {
         predefinedMetricSpecification: {
             predefinedMetricType: "NeptuneReaderAverageCPUUtilization",
         },
-        targetValue: 80,
+        targetValue: 50,
         scaleInCooldown: 600,
         scaleOutCooldown: 600
     }
